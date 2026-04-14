@@ -14,7 +14,7 @@ function DataPronostic() {
     //console.log(forecast);
     return (
         <main className="w-full">
-            <div className="flex justify-end pr-50 pt-5 gap-5">
+            <div className="flex justify-end md:pr-50 pt-5 gap-5">
                 <button onClick={() => setUnit("C")} className="w-10 h-10 rounded-full bg-white font-bold text-[25px] focus:bg-gray-400">
                     °C
                 </button>
@@ -22,7 +22,7 @@ function DataPronostic() {
                     °F
                 </button>
             </div>
-            <div className="w-full px-40 bg-[#100E1D] text-[#E7E7EB] p-8 font-sans">
+            <div className="w-full px-5 md:px-40 bg-[#100E1D] text-[#E7E7EB] p-8 font-sans">
                 {/* Sección de Pronóstico (Ejemplo estático, OpenWeather requiere otra URL para 5 días) */}
                 <div className="flex flex-wrap justify-center gap-6 mb-12">
                     {forecast?.map((dia, index) => {
@@ -67,7 +67,7 @@ function DataPronostic() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Wind Status */}
-                        <div className="bg-[#1E213A] p-6 flex flex-col items-center justify-between">
+                        <div className="bg-[#1E213A] md:p-6 flex flex-col items-center justify-between">
                             <span className="text-base font-medium">Wind status</span>
                             <div className="my-4">
                                 <span className="text-6xl font-bold">{convertWind(data?.data?.wind?.speed)}</span>
