@@ -1,11 +1,8 @@
-import React, { useEffect } from "react";
-import useFetch from "../hooks/useFetch";
+import React, { useContext } from "react";
+import { WeatherContext } from "../context/WeatherContext";
 
 function DataPronostic() {
-    const API_KEY = import.meta.env.VITE_API_KEY;
-    let ciudad = "La Paz";
-
-    const { data, loading, error } = useFetch(`https://api.openweathermap.org/data/2.5/weather?q=${ciudad}&appid=${API_KEY}&units=metric&lang=es`);
+    const { data, loading, error, forecast, daysLoading, unit, setUnit, convertGrados, convertWind, convertMillas } = useContext(WeatherContext);
 
     if (loading) {
         return <p>Cargando...</p>;
@@ -13,23 +10,59 @@ function DataPronostic() {
     if (error) {
         return <p>Error al cargar los datos</p>;
     }
-    console.log(data?.data);
+    //console.log(data.data);
+    //console.log(forecast);
     return (
-        <main>
-            <div className="min-h-screen bg-[#100E1D] text-[#E7E7EB] p-8 font-sans">
+        <main className="w-full">
+            <div className="flex justify-end pr-50 pt-5 gap-5">
+                <button onClick={() => setUnit("C")} className="w-10 h-10 rounded-full bg-white font-bold text-[25px] focus:bg-gray-400">
+                    °C
+                </button>
+                <button onClick={() => setUnit("F")} className="w-10 h-10 rounded-full bg-white font-bold text-[25px] focus:bg-gray-400">
+                    °F
+                </button>
+            </div>
+            <div className="w-full px-40 bg-[#100E1D] text-[#E7E7EB] p-8 font-sans">
                 {/* Sección de Pronóstico (Ejemplo estático, OpenWeather requiere otra URL para 5 días) */}
                 <div className="flex flex-wrap justify-center gap-6 mb-12">
-                    <div className="bg-[#1E213A] p-4 w-32 flex flex-col items-center gap-3">
-                        <span className="text-base">Hoy</span>
+                    {forecast?.map((dia, index) => {
+                        // Lógica para la fecha: El primero es "Tomorrow", los demás formato "Vie, 14 Abr"
+                        const fechaFormateada =
+                            index === 0
+                                ? "Tomorrow"
+                                : new Date(dia.dt_txt).toLocaleDateString("en-GB", {
+                                      weekday: "short",
+                                      day: "numeric",
+                                      month: "short",
+                                  });
 
-                        <div className="flex justify-between w-full mt-2">
-                            <span>°C</span>
-                            <span className="text-[#A09FB1]">°C</span>
-                        </div>
-                    </div>
+                        return (
+                            <div key={dia.dt} className="bg-[#1E213A] p-4 w-32 flex flex-col items-center gap-3 transition-all hover:scale-105">
+                                {/* Fecha */}
+                                <span className="text-base text-[#E7E7EB] font-medium">{fechaFormateada}</span>
+
+                                {/* Icono del clima dinámico */}
+                                <img
+                                    className="w-14 h-14 object-contain my-2"
+                                    src={`/weather/${dia.weather[0].icon}.png`}
+                                    alt={dia.weather[0].description}
+                                />
+
+                                {/* Temperaturas */}
+                                <div className="flex justify-between w-full mt-2 text-sm md:text-base">
+                                    <span className="text-[#E7E7EB]">
+                                        {convertGrados(Math.round(dia.main.temp_max))}°{unit}
+                                    </span>
+                                    <span className="text-[#A09FB1]">
+                                        {convertGrados(Math.round(dia.main.temp_min))}°{unit}
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
 
-                <div className="max-w-4xl mx-auto">
+                <div className="w-full mx-auto">
                     <h2 className="text-2xl font-bold mb-8">Today’s Highlights</h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -37,12 +70,12 @@ function DataPronostic() {
                         <div className="bg-[#1E213A] p-6 flex flex-col items-center justify-between">
                             <span className="text-base font-medium">Wind status</span>
                             <div className="my-4">
-                                <span className="text-6xl font-bold">{data?.data?.wind?.speed}</span>
-                                <span className="text-4xl font-medium ml-1">m/s</span>
+                                <span className="text-6xl font-bold">{convertWind(data?.data?.wind?.speed)}</span>
+                                <span className="text-4xl font-medium ml-1">{unit === "C" ? "m/s" : "mph"}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="bg-[#6E707A] p-2 rounded-full">{/* Rotamos la flecha según la dirección del viento */}</div>
-                                <span className="text-sm uppercase">Dirección:{data?.data?.wind?.deg} °</span>
+                                <img src="navigation.svg" className="w-8 h-8" style={{ transform: `rotate(${data?.data?.wind?.deg}deg)` }} />
+                                <span className="text-sm uppercase">{data?.data?.wind?.deg} °</span>
                             </div>
                         </div>
 
@@ -70,8 +103,8 @@ function DataPronostic() {
                         <div className="bg-[#1E213A] p-6 flex flex-col items-center">
                             <span className="text-base font-medium">Visibility</span>
                             <div className="my-4">
-                                <span className="text-6xl font-bold">{data?.data?.visibility}</span>
-                                <span className="text-4xl font-medium ml-2">km</span>
+                                <span className="text-6xl font-bold">{convertMillas(data?.data?.visibility)}</span>
+                                <span className="text-4xl font-medium ml-2">{unit === "C" ? "km" : "millas"}</span>
                             </div>
                         </div>
 

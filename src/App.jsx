@@ -6,7 +6,7 @@ function App() {
     return (
         <>
             <WeatherProvider>
-                <div className="flex flex-col md:flex-row min-h-screen bg-[#100E1D]">
+                <div className="flex flex-col md:flex-row bg-[#100E1D]">
                     <Aside />
                     <DataPronostic />
                 </div>
